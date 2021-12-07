@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <title>背单词</title>
+        <!-- 引入 WeUI CDN 链接 -->
+        <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/2.3.0/weui.min.css"/>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    </head>
+    <body>
+	<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">笔记选择</h1>
+    </div>
+    <div class="page__bd" id="page__bd">
+       
+
+    </div>
+</div>
+
+  <div class="button-sp-area">
+        <a href="login.html" class="weui-btn weui-btn_primary">返回上一页</a>
+ </div>
+
+<!--BEGIN dialog2-->
+ <div id="dialogs">
+        <div class="js_dialog" id="iosDialog2" style="display: none;">
+            <div class="weui-mask"></div>
+            <div class="weui-dialog">
+                <div class="weui-dialog__bd"  id="message">登录失败</div>
+                <div class="weui-dialog__ft">
+                    <a href="javascript:" class="weui-dialog__btn weui-dialog__btn_primary">知道了</a>
+                </div>
+            </div>
+        </div>
+		</div>
+        <!--END dialog2-->
+
+<script type="text/javascript">
+var data;
+ $(function(){
+	$('#dialogs').on('click', '.weui-dialog__btn', function(){
+            $(this).parents('.js_dialog').fadeOut(200);
+        });
+		
+	  $.ajax({
+			url: 'http://3j2r508612.zicp.vip/getEvernote',
+			type: 'get',
+			// 用于设置响应体的类型 注意 跟 data 参数没关系！！！
+			dataType: 'json',
+			success: function (res) {
+				// 一旦设置的 dataType 选项，就不再关心 服务端 响应的 Content-Type 了
+				// 客户端会主观认为服务端返回的就是 JSON 格式的字符串
+				console.log(res)				
+				if(res.code==0){
+				data=res.data;
+					for(j = 0,len=data.length; j < len; j++) {
+						$("#page__bd").append("<div class='weui-cells__title'>"+data[j].notebook+"</div>");
+						var a=data[j];
+						var notebook=data.notebook;
+					
+						//alert(a.note.length);
+						for(i=a.note.length-1;i>=0;i--){
+				
+							var notename=a.note[i].title;
+							//alert(notename);
+							$("#page__bd").append("<a class='weui-cell  weui-cell_access' href='javascript:WebSocketTest("+j+","+i+")'><div class='weui-cell__bd'><p>"+a.note[i].title+"</p></div><div class='weui-cell__ft'></div></a>");
+						}
+						
+					}
+					
+				}else{
+				 $('#message').html(res.data);
+				 $('#iosDialog2').fadeIn(200);
+				}
+				
+		},error: function (xhr) {
+			// 隐藏 loading
+
+			 $('#message').html("服务器无法连接");
+				 $('#iosDialog2').fadeIn(200);
+			console.log('error', xhr)
+			 window.location.href="note.html";
+		},
+			});
+			
+			
+  });
+  
+   function WebSocketTest(j,i)
+         {
+		 
+		 console.log(data[0])
+			var notebook=data[j].notebook;
+			var notename=data[j].note[i].title;
+			var guid=data[j].note[i].guid;
+			sessionStorage.setItem("notebook",notebook); 
+			sessionStorage.setItem("guid",guid); 
+		sessionStorage.setItem("note",notename); 
+		window.location.href="list.html";
+		 }
+</script>
+	 </body>
+	 
+</html>

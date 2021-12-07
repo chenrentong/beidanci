@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <title>背单词</title>
+        <!-- 引入 WeUI CDN 链接 -->
+        <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/2.3.0/weui.min.css"/>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    </head>
+    <body>
+	<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">功能选择</h1>
+    </div>
+    <div class="page__bd" id="page__bd">
+      <div class="weui-cells__title">你的选择</div>
+        <div class="weui-cells">
+            <a class="weui-cell  weui-cell_access" href="xindanci.html">
+                <div class="weui-cell__bd">
+                    <p>背新单词</p>
+                </div>
+                <div class="weui-cell__ft">
+                </div>
+            </a>
+            <a class="weui-cell  weui-cell_access" href="fuxi.html">
+                <div class="weui-cell__bd">
+                    <p>复习单词</p>
+                     <p id="time"></p>
+                </div>
+                <div class="weui-cell__ft">
+                </div>
+            </a>
+            <a id="showTooltips" class="weui-cell  weui-cell_access" href="javascript:">
+                <div class="weui-cell__bd">
+                    <p>预览词表</p>
+                </div>
+                <div class="weui-cell__ft">
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!--BEGIN dialog2-->
+ <div id="dialogs">
+        <div class="js_dialog" id="iosDialog2" style="display: none;">
+            <div class="weui-mask"></div>
+            <div class="weui-dialog">
+                <div class="weui-dialog__bd"  id="message">登录失败</div>
+                <div class="weui-dialog__ft">
+                    <a href="javascript:" class="weui-dialog__btn weui-dialog__btn_primary">知道了</a>
+                </div>
+            </div>
+        </div>
+		</div>
+        <!--END dialog2-->
+
+ <script type="text/javascript">
+    $(function(){
+    
+    	$('#dialogs').on('click', '.weui-dialog__btn', function(){
+            $(this).parents('.js_dialog').fadeOut(200);
+        });
+    	
+    	 var account=sessionStorage.getItem("account"); 
+    	
+    	$.ajax({
+			url: 'http://3j2r508612.zicp.vip/getReTime?account='+account,
+			type: 'get',
+			// 用于设置响应体的类型 注意 跟 data 参数没关系！！！
+			dataType: 'json',
+			success: function (res) {
+				 $('#time').html("最近时间:"+res.data);
+		},error: function (xhr) {
+			// 隐藏 loading
+			// 只有请求不正常（状态码不为200）才会执行
+			 $('#message').html("服务器无法连接");
+			 $('#iosDialog2').fadeIn(200);
+			console.log('error', xhr)
+			
+		},
+			});
+    	
+      $('#showTooltips').on('click', function(){
+    	  var guid=sessionStorage.getItem("guid"); 
+		  
+		  $.ajax({
+			url: 'http://3j2r508612.zicp.vip/preNote?guid='+guid,
+			type: 'get',
+			// 用于设置响应体的类型 注意 跟 data 参数没关系！！！
+			dataType: 'json',
+			success: function (res) {
+				 var code=res.data;//即要运行的代码。
+				  var newwin=window.open('','','');  //打开一个窗口并赋给变量newwin。
+				  newwin.opener = null // 防止代码对论谈页面修改
+				  newwin.document.write(code);  //向这个打开的窗口中写入代码code，这样就实现了运行代码功能。
+				  newwin.document.close();
+		},error: function (xhr) {
+			// 隐藏 loading
+			// 只有请求不正常（状态码不为200）才会执行
+			 $('#message').html("服务器无法连接");
+			 $('#iosDialog2').fadeIn(200);
+			console.log('error', xhr)
+			
+		},
+			});
+		         
+      });
+    });
+</script>
+	 </body>
+	 
+</html>

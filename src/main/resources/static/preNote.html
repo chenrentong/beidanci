@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+   <meta charset="utf-8">
+   <title>菜鸟教程(runoob.com)</title>
+    
+      <script type="text/javascript">
+         function WebSocketTest()
+         {
+            if ("WebSocket" in window)
+            {
+               alert("您的浏览器支持 WebSocket!");
+               
+               // 打开一个 web socket
+               var ws = new WebSocket("ws://localhost:20033/OpenapiWebSocket/20");
+                
+               ws.onopen = function()
+               {
+                  // Web Socket 已连接上，使用 send() 方法发送数据
+                  ws.send("发送数据");
+                  alert("数据发送中...");
+               };
+                
+               ws.onmessage = function (evt) 
+               { 
+                  var received_msg = evt.data;
+                  alert("数据已接收...");
+               };
+                
+               ws.onclose = function()
+               { 
+                  // 关闭 websocket
+                  alert("连接已关闭..."); 
+               };
+            }
+            
+            else
+            {
+               // 浏览器不支持 WebSocket
+               alert("您的浏览器不支持 WebSocket!");
+            }
+         }
+      </script>
+	  <script>
+function runCode(obj)  //定义一个运行代码的函数，
+{
+  var code=obj.value;//即要运行的代码。
+  var newwin=window.open('','','');  //打开一个窗口并赋给变量newwin。
+  newwin.opener = null // 防止代码对论谈页面修改
+  newwin.document.write(code);  //向这个打开的窗口中写入代码code，这样就实现了运行代码功能。
+  newwin.document.close();
+}</script>
+        
+   </head>
+   <body>
+   
+      <div id="sse">
+         <a href="javascript:WebSocketTest()">运行 WebSocket</a>
+      </div>
+      <textarea name="txtAdCode" rows="8" cols="40">
+这里填入要执行的完整html代码
+</textarea><br>
+<input type="button" onclick="runCode(this.offsetParent.getElementsByTagName('textarea')[0])" value="运行代码" />
+   </body>
+</html>

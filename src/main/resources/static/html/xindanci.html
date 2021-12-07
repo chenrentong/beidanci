@@ -1,0 +1,176 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <title>背单词</title>
+        <!-- 引入 WeUI CDN 链接 -->
+        <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/2.3.0/weui.min.css"/>
+		<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    </head>
+    <body>
+	<div class="page">
+     <div class="page__hd">
+        <h3 class="page__title ">背新单词</h3>
+    </div>
+    <div class="page__bd">
+        <div class="weui-form-preview">
+            <div class="weui-form-preview__hd">
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label weui-form-preview__value" id="spell">a</label>
+					
+                </div>
+            </div>
+			<div class="weui-form-preview__bd" >
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label" >笔记本</label>
+                    <span class="weui-form-preview__value" id="notebook"></span>
+                </div>
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">笔记</label>
+                    <span class="weui-form-preview__value" id="note"></span>
+                </div>
+                
+            </div>
+            <div class="weui-form-preview__bd" id="content">
+                
+                
+            </div>
+            <div class="weui-form-preview__ft" id="anniu">
+                <a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:">下一个单词</a>
+            </div>
+            
+           <div class="weui-form-preview__ft" id="anniu">
+                <a class="weui-form-preview__btn " href="list.html">返回上一页</a>
+            </div>
+        </div>
+        <br>
+        
+    </div>
+</div>
+
+ 
+
+
+<!--BEGIN dialog2-->
+ <div id="dialogs">
+        <div class="js_dialog" id="iosDialog2" style="display: none;">
+            <div class="weui-mask"></div>
+            <div class="weui-dialog">
+                <div class="weui-dialog__bd"  id="message">登录失败</div>
+                <div class="weui-dialog__ft">
+                    <a href="javascript:" class="weui-dialog__btn weui-dialog__btn_primary">知道了</a>
+                </div>
+            </div>
+        </div>
+		</div>
+        <!--END dialog2-->
+        
+        
+
+ <script type="text/javascript">
+ $(function(){
+	$('#dialogs').on('click', '.weui-dialog__btn', function(){
+            $(this).parents('.js_dialog').fadeOut(200);
+        });
+ 
+		var account=sessionStorage.getItem("account"); 
+		var notebook=sessionStorage.getItem("notebook"); 
+		if(account==null){
+		$('#message').html("重新登陆");
+			$('#iosDialog2').fadeIn(200);
+		return;
+		}
+		var note=sessionStorage.getItem("note"); 
+		var a="?noteBook="+notebook+"&noteName="+note+"&account="+account;
+		var count=0;
+		var data;
+	  $.ajax({
+			url: 'http://3j2r508612.zicp.vip/getVocabulary'+a,
+			type: 'get',
+			// 用于设置响应体的类型 注意 跟 data 参数没关系！！！
+			dataType: 'json',
+			success: function (res) {
+				// 一旦设置的 dataType 选项，就不再关心 服务端 响应的 Content-Type 了
+				// 客户端会主观认为服务端返回的就是 JSON 格式的字符串
+				console.log(res)				
+				if(res.code==0){
+					data=res.data;
+					if(data[0]!=null){
+						$('#spell').text(data[0].spell);
+						$('#notebook').text(data[0].notebook);
+						$('#note').text(data[0].noteName);
+						
+						for(i=0;i<data[0].type.length;i++){
+							var content=$('#content');
+							content.append("<div class='weui-form-preview__item'><label class='weui-form-preview__label'>"+data[0].type[i]+"</label><span class='weui-form-preview__value'>"+data[0].answer[i]+"</span></div>");
+						}
+					}else{
+					$('#message').html("没有要学习的新单词");
+			$('#iosDialog2').fadeIn(200);
+			 window.location.href="success.html";
+					}
+				}else{
+				$('#message').html(res.data);
+			$('#iosDialog2').fadeIn(200);
+				}
+				
+		},error: function (xhr) {
+			// 隐藏 loading
+			// 只有请求不正常（状态码不为200）才会执行
+			$('#message').html("服务器无法连接");
+			$('#iosDialog2').fadeIn(200);
+			console.log('error', xhr)
+		},
+			});
+			
+		 $('#anniu').on('click', function(){
+			//发送这一个到后台
+			$.ajax({
+			url: 'http://3j2r508612.zicp.vip/putReVocabulary?account='+account+"&spell="+data[count].spell,
+			type: 'get',
+			// 用于设置响应体的类型 注意 跟 data 参数没关系！！！
+			dataType: 'json',
+			success: function (res) {
+				// 一旦设置的 dataType 选项，就不再关心 服务端 响应的 Content-Type 了
+				// 客户端会主观认为服务端返回的就是 JSON 格式的字符串
+				console.log(res)				
+				if(res.code==0){
+				//下一个渲染
+			count++;
+			if(count>=data.length){
+			$('#message').html("单词已经背完了,");
+			$('#iosDialog2').fadeIn(200);
+			 window.location.href="success.html";
+				return;
+			}
+
+			$('#spell').text(data[count].spell);
+			var content=$('#content');
+			content.text('');
+			for(i=0;i<data[count].type.length;i++){
+				
+				content.append("<div class='weui-form-preview__item'><label class='weui-form-preview__label'>"+data[count].type[i]+"</label><span class='weui-form-preview__value'>"+data[count].answer[i]+"</span></div>");
+			}
+					
+				}else{
+				$('#message').html(res.data);
+			$('#iosDialog2').fadeIn(200);
+				
+				}
+				
+		},error: function (xhr) {
+			// 隐藏 loading
+			// 只有请求不正常（状态码不为200）才会执行
+			$('#message').html("服务器无法连接");
+			$('#iosDialog2').fadeIn(200);
+			console.log('error', xhr)
+		},
+			});
+		 		
+		})	;	 
+  });
+  
+</script>
+	 </body>
+	 
+</html>
